@@ -27,8 +27,15 @@ def call_from_args(name, args):
 
     f, fargs = _register[name]
 
-    if len(args) != len(fargs):
-        print 'Expected', str(len(fargs)), 'arguments'
+    if f.func_defaults is not None:
+        if len(args) < len(fargs) - len(f.func_defaults):
+            print 'Expected at least', len(fargs) - len(f.func_defaults), 'arguments'
+            return
+        if len(args) > len(fargs):
+            print 'Expected at most', len(fargs), 'arguments'
+            return
+    elif len(args) != len(fargs):
+        print 'Expected', len(fargs), 'arguments'
         return
 
     return f(*[a(b) for a, b in zip(fargs, args)])
