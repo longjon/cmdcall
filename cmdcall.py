@@ -5,6 +5,7 @@ import sys
 
 # a map from function name to function and argument processors
 _register = {}
+_default_func = None
 
 def command(*fargs):
     """A decorator indicating that a function can be called
@@ -16,6 +17,14 @@ def command(*fargs):
         return f
 
     return registerer
+
+def default(f):
+    """A decorator for the function that will be called if no arguments are
+       provided."""
+
+    global _default_func
+    _default_func = f
+    return f
 
 def call_from_args(name, args):
     """Call the named function, converting the provided string arguments
@@ -43,4 +52,11 @@ def call_from_args(name, args):
 def main():
     """Call a function based on command line arguments"""
 
-    call_from_args(sys.argv[1], sys.argv[2:])
+    if len(sys.argv) < 2:
+        if _default_func is None:
+            print 'No command provided and no default available'
+            return
+        else:
+            return _default_func()
+
+    return call_from_args(sys.argv[1], sys.argv[2:])
